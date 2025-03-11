@@ -41,18 +41,41 @@ spec:
               name: springapp-configmap
               key: password       
 ---
-# Node Port Service For SpringApp
 apiVersion: v1
 kind: Service
 metadata:
   name: springboot
 spec:
-  type: LoadBalancer
+  selector:
+    app: springboot
   ports:
     - port: 8080
       targetPort: 8080
-  selector:
-    app: springboot
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: springboot-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: test.trainwithumesh.in.net
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: springboot
+              port:
+                number: 8080
+  tls:
+  - hosts:
+    - test.trainwithumesh.in.net
+    secretName: test-cert  # Referencing the SSL certificate secret
 ---
 # Mongo RC with host path Volume
 apiVersion: v1
