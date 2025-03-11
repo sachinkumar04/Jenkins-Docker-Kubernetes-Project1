@@ -4,7 +4,6 @@ kind: ConfigMap
 metadata:
   name: springapp-configmap
 data:
-  # Configuration values can be set as key-value properties
   username: springapp
   password: mongodb@123
 ---
@@ -41,6 +40,7 @@ spec:
               name: springapp-configmap
               key: password       
 ---
+# Service for Spring Boot Application
 apiVersion: v1
 kind: Service
 metadata:
@@ -53,28 +53,29 @@ spec:
       targetPort: 8080
   type: ClusterIP
 ---
+# Ingress Resource
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: springboot-ingress
   annotations:
-    cert-manager.io/issuer: letsencrypt-prod  # or your custom issuer if you're using your own cert
+    cert-manager.io/issuer: letsencrypt-prod
 spec:
   rules:
-  - host: test.trainwithumesh.in.net  # This should match your domain
+  - host: test.trainwithumesh.in.net
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: springboot  # The name of your service
+            name: springboot
             port:
               number: 8080
   tls:
   - hosts:
     - test.trainwithumesh.in.net
-    secretName: test-cert  # The secret containing your TLS certificate
+    secretName: test-cert
 ---
 # Mongo RC with host path Volume
 apiVersion: v1
@@ -114,7 +115,7 @@ spec:
         hostPath:
          path: /tmp/dbbackup
 ---
-# Mongo Node Port RC
+# Mongo Service
 apiVersion: v1
 kind: Service
 metadata:
