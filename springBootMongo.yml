@@ -40,46 +40,19 @@ spec:
               name: springapp-configmap
               key: password       
 ---
-# Service for Spring Boot Application
 apiVersion: v1
 kind: Service
 metadata:
   name: springboot
 spec:
-  selector:
-    app: springboot
+  type: LoadBalancer  # Exposes the service through a cloud load balancer
   ports:
-    - port: 8080
-      targetPort: 8080
-  type: ClusterIP
+    - port: 8080           # The port exposed by the service
+      targetPort: 8080      # The port on the Spring Boot container
+      protocol: TCP
+  selector:
+    app: springboot         # The label selector to match the Spring Boot pods
 
-  
----  
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app-ingress
-  namespace: default
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod  # Referencing the cluster-wide issuer
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"   # Force redirect HTTP to HTTPS
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force SSL
-spec:
-  rules:
-  - host: my-app.example.com  # Replace with your domain
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: my-app-service  # Replace with your service name
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - my-app.example.com  # The same host as in the rules
-    secretName: my-app-tls  # The name of the secret where the TLS cert will be stored
 
 ---
 # Mongo RC with host path Volume
